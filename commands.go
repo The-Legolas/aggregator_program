@@ -4,9 +4,11 @@ import (
 	"fmt"
 
 	"github.com/The-Legolas/aggregator_program/internal/config"
+	"github.com/The-Legolas/aggregator_program/internal/database"
 )
 
 type state struct {
+	db  *database.Queries
 	cfg *config.Config
 }
 
@@ -16,27 +18,11 @@ type command struct {
 }
 
 type commands struct {
-	names map[string]func(*state, command) error
-}
-
-func handlerLogin(s *state, cmd command) error {
-	arg := cmd.args
-	if len(arg) == 0 {
-		return fmt.Errorf("no arguments")
-	}
-
-	err := s.cfg.SetUser(arg[0])
-	if err != nil {
-		return fmt.Errorf("error setting user: %v", err)
-	}
-
-	fmt.Printf("The user has been succesfully set to: %v\n", arg[0])
-
-	return nil
+	registeredCommands map[string]func(*state, command) error
 }
 
 func (c *commands) run(s *state, cmd command) error {
-	handler, ok := c.names[cmd.name]
+	handler, ok := c.registeredCommands[cmd.name]
 	if !ok {
 		return fmt.Errorf("command not found: %s", cmd.name)
 	}
@@ -45,11 +31,10 @@ func (c *commands) run(s *state, cmd command) error {
 }
 
 func (c *commands) register(name string, f func(*state, command) error) {
-	_, ok := c.names[name]
+	_, ok := c.registeredCommands[name]
 	if ok {
 		fmt.Printf("command already in registry: %s\n", name)
 		return
 	}
-
-	c.names[name] = f
+	c.registeredCommands[name] = f
 }

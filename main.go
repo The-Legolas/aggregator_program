@@ -1,11 +1,14 @@
 package main
 
 import (
+	"database/sql"
 	"fmt"
 	"log"
 	"os"
 
 	"github.com/The-Legolas/aggregator_program/internal/config"
+	"github.com/The-Legolas/aggregator_program/internal/database"
+	_ "github.com/lib/pq"
 )
 
 func main() {
@@ -14,20 +17,37 @@ func main() {
 		log.Fatalf("error reading config: %v", err)
 	}
 
-	programState := &state{cfg: &cfg}
+	db, err := sql.Open("postgres", cfg.DbURL)
+	if err != nil {
+		log.Fatalf("error connecting to database: %v", err)
+	}
+	defer db.Close()
+
+	err = db.Ping()
+	if err != nil {
+		log.Fatalf("error connecting to database: %v", err)
+	}
+
+	dbQueries := database.New(db)
+
+	programState := &state{
+		db:  dbQueries,
+		cfg: &cfg,
+	}
 
 	cmds := &commands{
-		names: make(map[string]func(*state, command) error),
+		registeredCommands: make(map[string]func(*state, command) error),
 	}
 
 	cmds.register("login", handlerLogin)
+	cmds.register("register", handlerRegister)
 
 	if len(os.Args) < 2 {
 		fmt.Println("Usage: gator <command> [args...]")
 		os.Exit(1)
 	}
 
-	// Step 10: Map the args to your command struct
+	// Map the args to the command struct
 	cmdName := os.Args[1]
 	cmdArgs := os.Args[2:]
 
