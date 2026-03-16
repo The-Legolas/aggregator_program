@@ -2,15 +2,7 @@ package main
 
 import (
 	"fmt"
-
-	"github.com/The-Legolas/aggregator_program/internal/config"
-	"github.com/The-Legolas/aggregator_program/internal/database"
 )
-
-type state struct {
-	db  *database.Queries
-	cfg *config.Config
-}
 
 type command struct {
 	name string
