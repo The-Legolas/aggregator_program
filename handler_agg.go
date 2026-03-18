@@ -51,7 +51,7 @@ func scrapeFeed(s *state, feed database.Feed) {
 	}
 
 	for _, feed := range feedData.Channel.Item {
-		fmt.Printf("Feeds title: %v\n", feed.Title)
+		fmt.Printf("Feeds post: %v\n", feed.Title)
 	}
 
 	log.Printf("Feed %s collected, %v posts found", feed.Name, len(feedData.Channel.Item))
