@@ -43,19 +43,23 @@ func main() {
 
 	cmds := &commands{
 		registeredCommands: make(map[string]func(*state, command) error),
+		descriptions:       make(map[string]string),
 	}
 
-	cmds.register("login", handlerLogin)
-	cmds.register("register", handlerRegister)
-	cmds.register("reset", handlerReset)
-	cmds.register("users", handlerListUsers)
-	cmds.register("agg", handlerAgg)
-	cmds.register("addfeed", middlewareLoggedIn(handlerAddFeed))
-	cmds.register("feeds", handlerListFeeds)
-	cmds.register("follow", middlewareLoggedIn(handlerFollow))
-	cmds.register("following", middlewareLoggedIn(handlerFollowing))
-	cmds.register("unfollow", middlewareLoggedIn(handlerUnfollow))
-	cmds.register("browse", middlewareLoggedIn(handlerBrowse))
+	cmds.register("login", handlerLogin, "Log in as a user: <username>")
+	cmds.register("register", handlerRegister, "Register a new user: <username>")
+	cmds.register("reset", handlerReset, "Deletes all users and data from the database")
+	cmds.register("users", handlerListUsers, "List all users currently in the Database")
+	cmds.register("agg", handlerAgg, "Start aggregating feeds on an interval: <time_between_reqs> (e.g. 1m, 30s)")
+	cmds.register("addfeed", middlewareLoggedIn(handlerAddFeed), "Subscribe to a new feed: <name> <url>")
+	cmds.register("feeds", handlerListFeeds, "List all feeds in the database")
+	cmds.register("follow", middlewareLoggedIn(handlerFollow), "Lets the current user follow a specific feed: <feed_url>")
+	cmds.register("following", middlewareLoggedIn(handlerFollowing), "List all feeds the current user follows")
+	cmds.register("unfollow", middlewareLoggedIn(handlerUnfollow), "Unfollow a feed: <feed_url>")
+	cmds.register("browse", middlewareLoggedIn(handlerBrowse), "Browse posts: [limit]")
+	cmds.register("help", func(s *state, cmd command) error {
+		return handlerHelp(s, cmd, cmds)
+	}, "List all available commands and their usage")
 
 	if len(os.Args) < 2 {
 		fmt.Println("Usage: gator <command> [args...]")

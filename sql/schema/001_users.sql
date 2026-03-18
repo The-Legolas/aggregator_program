@@ -9,6 +9,3 @@ CREATE TABLE users (
 
 -- +goose Down
 DROP TABLE users;
-
-
---psql "postgres://the_legolas_2:postgres@localhost:5432/gator"

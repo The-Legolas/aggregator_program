@@ -11,6 +11,7 @@ type command struct {
 
 type commands struct {
 	registeredCommands map[string]func(*state, command) error
+	descriptions       map[string]string
 }
 
 func (c *commands) run(s *state, cmd command) error {
@@ -22,11 +23,12 @@ func (c *commands) run(s *state, cmd command) error {
 	return handler(s, cmd)
 }
 
-func (c *commands) register(name string, f func(*state, command) error) {
+func (c *commands) register(name string, f func(*state, command) error, description string) {
 	_, ok := c.registeredCommands[name]
 	if ok {
 		fmt.Printf("command already in registry: %s\n", name)
 		return
 	}
 	c.registeredCommands[name] = f
+	c.descriptions[name] = description
 }
