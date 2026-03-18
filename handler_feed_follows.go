@@ -71,7 +71,7 @@ func handlerFollowing(s *state, cmd command, user database.User) error {
 	}
 
 	if len(feedFollows) == 0 {
-		fmt.Printf("%s is not following any feeds", user.Name)
+		fmt.Printf("%s is not following any feeds\n", user.Name)
 		return nil
 	}
 
